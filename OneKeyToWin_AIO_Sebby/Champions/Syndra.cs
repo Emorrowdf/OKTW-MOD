@@ -12,7 +12,7 @@ namespace OneKeyToWin_AIO_Sebby.Champions
     {
         private Menu Config = Program.Config;
         public static SebbyLib.Orbwalking.Orbwalker Orbwalker = Program.Orbwalker;
-        public Obj_AI_Hero Player { get { return ObjectManager.Player; } }
+        public static Obj_AI_Hero Player { get { return ObjectManager.Player; } }
         private Spell E, Q, R, W, EQ, Eany;
         private float QMANA = 0, WMANA = 0, EMANA = 0, RMANA = 0;
         private static List<Obj_AI_Minion> BallsList = new List<Obj_AI_Minion>();
@@ -203,7 +203,7 @@ namespace OneKeyToWin_AIO_Sebby.Champions
             }
         }
 
-        public float GetThunderLordDamage(Obj_AI_Hero t)
+        public static float GetThunderLordDamage(Obj_AI_Hero t)
         {
             float totalDamage = 0;
             if (!Player.HasBuff("masterylordsdecreecooldown"))
@@ -237,6 +237,7 @@ namespace OneKeyToWin_AIO_Sebby.Champions
                 var comboDMG = OktwCommon.GetKsDamage(enemy, R) ;
                 comboDMG += (R.GetDamage(enemy, 1) * (R.Instance.Ammo - 3));
                 comboDMG += OktwCommon.GetEchoLudenDamage(enemy);
+                comboDMG += GetThunderLordDamage(enemy);
 
                 if (Rcombo)
                 {
@@ -430,83 +431,7 @@ namespace OneKeyToWin_AIO_Sebby.Champions
         }
 
         private void Drawing_OnDraw(EventArgs args)
-        {
-            var HpBar = Config.Item("HpBar").GetValue<bool>();
-
-            float positionDraw = 0;
-            float positionGang = 500;
-            int Width = 103;
-            int Height = 8;
-            int XOffset = 10;
-            int YOffset = 20;
-            float offset = 0;
-            bool blink = true;
-            bool Thunderlord = true;
-
-            foreach (var enemy in HeroManager.Enemies)
-                if (HpBar && enemy.IsHPBarRendered && Render.OnScreen(Drawing.WorldToScreen(enemy.Position)))
-                {
-                    var barPos = enemy.HPBarPosition;
-
-                    float QdmgDraw = 0, WdmgDraw = 0, EdmgDraw = 0, RdmgDraw = 0, damage = 0, TdmgDraw = 0, ItemdmgDraw = 0;
-
-                    if (Q.IsReady())
-                        damage = damage + Q.GetDamage(enemy);
-
-                    if (W.IsReady() && Program.Player.ChampionName != "Kalista")
-                        damage = damage + W.GetDamage(enemy);
-
-                    if (E.IsReady())
-                        damage = damage + E.GetDamage(enemy);
-
-                    if (R.IsReady())
-                        damage = damage + R.GetDamage(enemy);
-
-                    if (Thunderlord)
-                        damage = damage + GetThunderLordDamage(enemy);
-
-                    if (Q.IsReady())
-                        QdmgDraw = (Q.GetDamage(enemy) / damage);
-
-                    if (W.IsReady() && Program.Player.ChampionName != "Kalista")
-                        WdmgDraw = (W.GetDamage(enemy) / damage);
-
-                    if (E.IsReady())
-                        EdmgDraw = (E.GetDamage(enemy) / damage);
-
-                    if (R.IsReady())
-                        RdmgDraw = (Math.Min(7, R.Instance.Ammo) * R.GetDamage(enemy, 1) / damage);
-
-                    if (Thunderlord)
-                        TdmgDraw = (GetThunderLordDamage(enemy) / damage);
-
-
-
-
-                    var percentHealthAfterDamage = Math.Max(0, enemy.Health - damage) / enemy.MaxHealth;
-
-                    var yPos = barPos.Y + YOffset;
-                    var xPosDamage = barPos.X + XOffset + Width * percentHealthAfterDamage;
-                    var xPosCurrentHp = barPos.X + XOffset + Width * enemy.Health / enemy.MaxHealth;
-
-                    float differenceInHP = xPosCurrentHp - xPosDamage;
-                    var pos1 = barPos.X + XOffset + (107 * percentHealthAfterDamage);
-                    for (int i = 0; i < differenceInHP; i++)
-                    {
-                        if (Q.IsReady() && i < QdmgDraw * differenceInHP)
-                            Drawing.DrawLine(pos1 + i, yPos, pos1 + i, yPos + Height, 1, System.Drawing.Color.Cyan);
-                        else if (W.IsReady() && i < (QdmgDraw + WdmgDraw) * differenceInHP)
-                            Drawing.DrawLine(pos1 + i, yPos, pos1 + i, yPos + Height, 1, System.Drawing.Color.Orange);
-                        else if (E.IsReady() && i < (QdmgDraw + WdmgDraw + EdmgDraw) * differenceInHP)
-                            Drawing.DrawLine(pos1 + i, yPos, pos1 + i, yPos + Height, 1, System.Drawing.Color.Yellow);
-                        else if (R.IsReady() && i < (QdmgDraw + WdmgDraw + EdmgDraw + RdmgDraw) * differenceInHP)
-                            Drawing.DrawLine(pos1 + i, yPos, pos1 + i, yPos + Height, 1, System.Drawing.Color.YellowGreen);
-                        else if (!Player.HasBuff("masterylordsdecreecooldown") && i < (QdmgDraw + WdmgDraw + EdmgDraw + RdmgDraw + TdmgDraw) * differenceInHP)
-                            Drawing.DrawLine(pos1 + i, yPos, pos1 + i, yPos + Height, 1, System.Drawing.Color.Blue);
-
-                    }
-                }
-        
+        {            
                         if (Config.Item("qRange", true).GetValue<bool>())
             {
                 if (Config.Item("onlyRdy", true).GetValue<bool>())

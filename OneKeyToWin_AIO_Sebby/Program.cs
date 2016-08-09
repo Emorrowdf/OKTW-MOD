@@ -14,7 +14,7 @@ namespace OneKeyToWin_AIO_Sebby
         public static Menu Config;
         public static SebbyLib.Orbwalking.Orbwalker Orbwalker;
         public static Obj_AI_Hero Player { get { return ObjectManager.Player; } }
-
+        public static bool Thunderlord = true;
         public static float QMANA = 0, WMANA = 0, EMANA = 0, RMANA = 0;
         public static Spell Q, W, E, R, DrawSpell;
 
